@@ -18,7 +18,6 @@ namespace OctopusController
 
         TentacleMode tentacleMode;
         Transform[] _bones;
-        Transform[] _endEffectorSphere;
 
         public Transform[] Bones { get => _bones; }
 

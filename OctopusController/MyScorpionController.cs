@@ -12,7 +12,6 @@ namespace OctopusController
     {
         //TAIL
         Transform tailTarget;
-        Vector3 auxito;
         Transform tailEndEffector;
         MyTentacleController _tail;
 
@@ -25,11 +24,7 @@ namespace OctopusController
         Transform[] legFutureBases = new Transform[6];
         MyTentacleController[] _legs = new MyTentacleController[6];
 
-        Vector3[] auxiliarPositionInitial = new Vector3[6];
-        Vector3[] auxiliarPositionFinal = new Vector3[6];
-        bool[] firstTime = new bool[6];
-        float[] personalTimer = new float[6];
-        float[] personalFinisher = new float[6];
+
         private Vector3[] copy;
         private float[] distances;
         float threeshold = 0.05f;
