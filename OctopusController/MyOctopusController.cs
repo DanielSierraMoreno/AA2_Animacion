@@ -35,7 +35,7 @@ namespace OctopusController
         public float SwingMin { set => _swingMin = value; }
         public float SwingMax { set => _swingMax = value; }
 
-        float[] _theta, _sin, _cos;
+        float[] _theta, _cos;
 
         public void TestLogging(string objectName)
         {
@@ -110,19 +110,13 @@ namespace OctopusController
         {
             for (int i = 0; i < _tentacles.Length; i++)
             {
-                // Create arrays of f
                 _theta = new float[_tentacles[i].Bones.Length];
-                _sin = new float[_tentacles[i].Bones.Length];
                 _cos = new float[_tentacles[i].Bones.Length];
                 {
-                    // starting from the second last joint (the last being the end effector)
-                    // going back up to the root
                     for (int j = _tentacles[i].Bones.Length - 2; j >= 0; j--)
                     {
-                        //  we make a vector from endEffector to the joint
                         Vector3 r1 = _tentacles[i].Bones[_tentacles[i].Bones.Length - 1].transform.position - _tentacles[i].Bones[j].transform.position;
 
-                        // Depending if isShooting the target will be normal target or the random
                         if (isShooting == true)
                         {
                             r2 = _target.transform.position - _tentacles[i].Bones[j].transform.position;
@@ -132,37 +126,17 @@ namespace OctopusController
                         {
                             r2 = _randomTargets[i].transform.position - _tentacles[i].Bones[j].transform.position;
                         }
-                        // avoid the division of small numbers
-                        if (r1.magnitude * r2.magnitude <= 0.001f)
-                        {
-                            _cos[j] = 1;
-                            _sin[j] = 0;
-                        }
-                        else
-                        {
-                            // we use dot and cross product
-                            _cos[j] = Vector3.Dot(r1, r2) / (r1.magnitude * r2.magnitude);
-                            _sin[j] = Vector3.Cross(r1, r2).magnitude / (r1.magnitude * r2.magnitude);
+  
+                        _cos[j] = Vector3.Dot(r1, r2) / (r1.magnitude * r2.magnitude);
 
-                        }
+                        
 
                         Vector3 axis = Vector3.Cross(r1, r2).normalized;
                         _theta[j] = Mathf.Acos(Mathf.Clamp(_cos[j], -1, 1));
 
-                        if (_sin[j] < 0.0f)
-                            _theta[j] *= -1.0f;
 
-                        // obtain an angle 
-                        if (_theta[j] > Mathf.PI)
-                        {
-                            _theta[j] -= Mathf.PI * 2;
-                        }
-                        if (_theta[j] < -Mathf.PI)
-                        {
-                            _theta[j] += Mathf.PI * 2;
-                        }
+                       
 
-                        // To try to avoid strange rotations we limit the Z rotation
                         _theta[j] *= Mathf.Rad2Deg;
                         if (_theta[j] > 15.0f)
                         {

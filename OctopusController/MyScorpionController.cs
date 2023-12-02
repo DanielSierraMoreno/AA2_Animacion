@@ -18,6 +18,7 @@ namespace OctopusController
         float animationRange;
         float animTime = 0;
         bool isPlaying = false;
+        bool StartTail = false;
         float distanceBetweenFutureBases = 1f;
         //LEGS
         Transform[] legTargets = new Transform[6];
@@ -74,7 +75,7 @@ namespace OctopusController
 
         public void UpdateIK()
         {
-            if (Vector3.Distance(tailEndEffector.transform.position, tailTarget.transform.position) > threeshold)
+            if (Vector3.Distance(tailEndEffector.transform.position, tailTarget.transform.position) > threeshold && StartTail)
             {
                 for (int i = 0; i < _tail.Bones.Length - 2; i++)
                 {
@@ -83,7 +84,8 @@ namespace OctopusController
                     {
                         slope = CalculateSlope(_tail.Bones[i], new Vector3(0, 0, 1));
                         _tail.Bones[i].transform.Rotate((new Vector3(0, 0, 1) * -slope) * rate);
-
+                        slope = CalculateSlope(_tail.Bones[i], new Vector3(1, 0, 0));
+                        _tail.Bones[i].transform.Rotate((new Vector3(1, 0, 0) * -slope) * rate);
                     }
                     else
                     {
@@ -94,15 +96,18 @@ namespace OctopusController
 
                 }
             }
+
             if (isPlaying == true)
             {
                 animTime += Time.deltaTime;
                 if (animTime < animationRange)
                 {
                     updateLegPos();
+
                 }
                 else
                 {
+                    StartTail = true;
                     isPlaying = false;
                 }
             }
@@ -157,27 +162,17 @@ namespace OctopusController
             if (targetRootDist < distances.Sum())
             {
                 // A loop that checks if the bones separate
-                while (Vector3.Distance(copy[copy.Length - 1], legTargets[idPata].position) != 0 || Vector3.Distance(copy[0], _legs[idPata].Bones[0].position) != 0)
+ 
+                copy[copy.Length - 1] = legTargets[idPata].position;
+                // First stage of Fabrik forwardReaching
+                for (int i = _legs[idPata].Bones.Length - 2; i >= 0; i--)
                 {
-                    copy[copy.Length - 1] = legTargets[idPata].position;
-                    // First stage of Fabrik forwardReaching
-                    for (int i = _legs[idPata].Bones.Length - 2; i >= 0; i--)
-                    {
-                        Vector3 vectorDirector = (copy[i + 1] - copy[i]).normalized;
-                        Vector3 movementVector = vectorDirector * distances[i];
-                        copy[i] = copy[i + 1] - movementVector;
-                    }
-
-                    copy[0] = _legs[idPata].Bones[0].position;
-                    // Second stage of Fabrik backwardReaching
-                    for (int i = 1; i < _legs[idPata].Bones.Length - 1; i++)
-                    {
-                        Vector3 vectorDirector = (copy[i - 1] - copy[i]).normalized;
-                        Vector3 movementVector = vectorDirector * distances[i - 1];
-                        copy[i] = copy[i - 1] - movementVector;
-
-                    }
+                    Vector3 vectorDirector = (copy[i + 1] - copy[i]).normalized;
+                    Vector3 movementVector = vectorDirector * distances[i];
+                    copy[i] = copy[i + 1] - movementVector;
                 }
+
+
                 // Update original rotations
                 for (int i = 0; i <= _legs[idPata].Bones.Length - 2; i++)
                 {
