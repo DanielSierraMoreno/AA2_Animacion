@@ -117,15 +117,9 @@ namespace OctopusController
                     {
                         Vector3 r1 = _tentacles[i].Bones[_tentacles[i].Bones.Length - 1].transform.position - _tentacles[i].Bones[j].transform.position;
 
-                        if (isShooting == true)
-                        {
-                            r2 = _target.transform.position - _tentacles[i].Bones[j].transform.position;
 
-                        }
-                        else
-                        {
-                            r2 = _randomTargets[i].transform.position - _tentacles[i].Bones[j].transform.position;
-                        }
+                        r2 = _randomTargets[i].transform.position - _tentacles[i].Bones[j].transform.position;
+                        
   
                         _cos[j] = Vector3.Dot(r1, r2) / (r1.magnitude * r2.magnitude);
 
@@ -138,16 +132,11 @@ namespace OctopusController
                        
 
                         _theta[j] *= Mathf.Rad2Deg;
-                        if (_theta[j] > 15.0f)
-                        {
-                            _theta[j] = 15;
-                        }
-                        else if (_theta[j] < -15)
-                        {
-                            _theta[j] = -15;
-                        }
+                        _theta[j] = Mathf.Clamp(_theta[j], -15, 15);
+
 
                         _tentacles[i].Bones[j].transform.Rotate(axis, _theta[j], Space.World);
+
                         Quaternion twist = new Quaternion(0, _tentacles[i].Bones[j].transform.localRotation.y, 0, _tentacles[i].Bones[j].transform.localRotation.w);
                         twist = twist.normalized;
                         Quaternion swing = _tentacles[i].Bones[j].transform.localRotation * Quaternion.Inverse(twist);

@@ -162,16 +162,28 @@ namespace OctopusController
             if (targetRootDist < distances.Sum())
             {
                 // A loop that checks if the bones separate
- 
-                copy[copy.Length - 1] = legTargets[idPata].position;
-                // First stage of Fabrik forwardReaching
-                for (int i = _legs[idPata].Bones.Length - 2; i >= 0; i--)
-                {
-                    Vector3 vectorDirector = (copy[i + 1] - copy[i]).normalized;
-                    Vector3 movementVector = vectorDirector * distances[i];
-                    copy[i] = copy[i + 1] - movementVector;
-                }
 
+                while (Vector3.Distance(copy[copy.Length - 1], legTargets[idPata].position) != 0 || Vector3.Distance(copy[0], _legs[idPata].Bones[0].position) != 0)
+                {
+                    copy[copy.Length - 1] = legTargets[idPata].position;
+                    // First stage of Fabrik forwardReaching
+                    for (int i = _legs[idPata].Bones.Length - 2; i >= 0; i--)
+                    {
+                        Vector3 vectorDirector = (copy[i + 1] - copy[i]).normalized;
+                        Vector3 movementVector = vectorDirector * distances[i];
+                        copy[i] = copy[i + 1] - movementVector;
+                    }
+
+                    copy[0] = _legs[idPata].Bones[0].position;
+                    // Second stage of Fabrik backwardReaching
+                    for (int i = 1; i < _legs[idPata].Bones.Length - 1; i++)
+                    {
+                        Vector3 vectorDirector = (copy[i - 1] - copy[i]).normalized;
+                        Vector3 movementVector = vectorDirector * distances[i - 1];
+                        copy[i] = copy[i - 1] - movementVector;
+
+                    }
+                }
 
                 // Update original rotations
                 for (int i = 0; i <= _legs[idPata].Bones.Length - 2; i++)
